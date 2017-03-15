@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>障礙統計報表</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=big5">
+<style type="text/css">
+<!--
+.style1 {color: #FFFFFF}
+-->
+</style>
+</head>
+
+<body onload="setDate()">
+<br>
+<table>
+<tr>
+<td><img src='../IMAGE/circle.gif'></td>
+<td>選擇欲製做報表的日期區間</td>
+<br>
+</tr>
+</table>
+<form name="myform">
+<table border="1">
+  <tr>
+  	<td bgcolor="#CC6600"><span class="style1">統計方式</span></td>
+  	<td colspan="6"><select name="report_method" id="report_method">
+  		<option selected value="system">依系統別</option>
+  		<option value="errcode">依障礙原因</option>
+        <option value="level">依障礙等級</option>
+        <option value="module">依功能模組</option>
+        <option value="operation">依業務內容</option>
+  	</select></td>
+  </tr>
+  <tr>
+    <td bgcolor="#CC6600"><span class="style1">起始日期</span></td>
+    <td><select name="yearS" id="yearS">
+        <option value="2004">2004</option>
+  </select></td>
+    <td bgcolor="#3366CC"><span class="style1">年</span></td>
+    <td><select name="monthS" id="monthS"
+            onchange=
+              "setDateS(yearS.options[yearS.selectedIndex].value,
+              options[selectedIndex].value)">
+      	<option value="01">01</option>
+  		</select></td>
+    <td bgcolor="#3366CC"><span class="style1">月</span></td>
+    <td><select name="dateS" id="dateS">
+      		<option value="01">01</option>
+  		</select></td>
+    <td bgcolor="#3366CC"><span class="style1">日</span></td>
+  </tr>
+  <tr>
+    <td bgcolor="#CC6600"><span class="style1">終止日期</span></td>
+    <td><select name="yearE" id="yearE">
+        <option value="2004">2004</option>
+  		</select></td>
+    <td bgcolor="#3366CC"><span class="style1">年</span></td>
+    <td><select name="monthE" id="monthE"
+            onchange=
+              "setDateE(yearE.options[yearE.selectedIndex].value,
+              options[selectedIndex].value)">
+      	<option value="01">01</option>
+  		</select></td>
+    <td bgcolor="#3366CC"><span class="style1">月</span></td>
+    <td><select name="dateE" id="dateE">
+      		<option value="01">01</option>
+  		</select></td>
+    <td bgcolor="#3366CC"><span class="style1">日</span></td>
+  </tr>
+  <tr bgcolor="#33CC66"><td colspan='13' align='center'><input type='button' value='查詢' onClick="formDateTime()"></td>
+  </tr>
+</table>
+
+</form>
+<script language="JavaScript">
+
+var today = new Date();
+var year = today.getFullYear();
+var minYears=2004, maxYears=year;
+
+for(var i=minYears+1; i<=maxYears; i++){
+	document.myform.yearS.options[i-minYears]=(new Option(i,i));
+	document.myform.yearE.options[i-minYears]=(new Option(i,i));	
+}
+
+for(var i=1; i<=11; i++){
+	if(i<9){
+		document.myform.monthS.options[i]=(new Option("0"+(i+1),"0"+(i+1)));
+		document.myform.monthE.options[i]=(new Option("0"+(i+1),"0"+(i+1)));		
+	} else {
+		document.myform.monthS.options[i]=(new Option(i+1,i+1));
+		document.myform.monthE.options[i]=(new Option(i+1,i+1));
+	}
+	
+}
+
+for(var i=1; i<=30; i++){
+	if(i<9){
+		document.myform.dateS.options[i]=(new Option("0"+(i+1),"0"+(i+1)));
+		document.myform.dateE.options[i]=(new Option("0"+(i+1),"0"+(i+1)));		
+	} else {
+		document.myform.dateS.options[i]=(new Option(i+1,i+1));
+		document.myform.dateE.options[i]=(new Option(i+1,i+1));		
+	}
+}	
+
+
+
+
+/* setDay用來計星期幾 目前沒用到*/
+function setDay(frm){
+  var year=parseInt(frm.year.options[frm.year.selectedIndex].value),
+      month=parseInt(frm.month.options[frm.month.selectedIndex].value)-1,
+      date=parseInt(frm.date.options[frm.date.selectedIndex].value),
+      day=(new Date(year,month,date)).getDay();
+ /* with(frm.day)
+    switch(day){
+      case 0: value="星期天"; return;
+      case 1: value="星期一"; return;
+      case 2: value="星期二"; return;
+      case 3: value="星期三"; return;
+      case 4: value="星期四"; return;
+      case 5: value="星期五"; return;
+      case 6: value="星期六"; return;
+  }*/
+}
+ 
+/* 輸入西元年和月並傳回當月的天數 */
+function getDaysOfMonth(year,month){
+  switch(month){
+    case 1:case 3:case 5:case 7:
+    case 8:case 10:case 12:
+      return 31;
+    case 4:case 6:case 9:case 11:
+      return 30;
+    default: 
+      return 31-(new Date(year,month-1,31)).getDate();    
+  }
+}
+ 
+/*
+   設定用來顯示日期的select(name="date")物件,
+   當月份改了,顯示date的select物件要適當的調整,
+   除了月份之外亦需考慮閏年
+*/
+function setDateS(year,month){
+	
+	var daysOfMonth=getDaysOfMonth(parseInt(year),parseInt(month)),
+		dateS=parseInt(document.myform.dateS.options[document.myform.dateS.selectedIndex].value);
+	for(var i=28; i<daysOfMonth; i++){
+		document.myform.dateS.options[i]=(new Option(i+1,i+1));
+	}          
+	document.myform.dateS.options.length=i;  
+	document.myform.dateS.selectedIndex = dateS-1;
+	
+	if(dateS>daysOfMonth){		
+		document.myform.dateS.selectedIndex=0;
+	}	
+}
+
+function setDateE(year,month){
+
+	var daysOfMonth=getDaysOfMonth(parseInt(year),parseInt(month)),
+		dateE=parseInt(document.myform.dateE.options[document.myform.dateE.selectedIndex].value);
+	
+	for(var i=28; i<daysOfMonth; i++){
+		document.myform.dateE.options[i]=(new Option(i+1,i+1));
+	}          
+	document.myform.dateE.options.length=i;  
+	document.myform.dateE.selectedIndex = dateS-1;
+	
+	if(dateE>daysOfMonth){
+		document.myform.dateE.selectedIndex=0;
+	}	
+}
+
+function selectToValue (selectbox, value)
+{	
+    if (selectbox == null) return false;
+	
+	for(var i = 0; i < selectbox.options.length; ++i) {
+		
+        
+        if (selectbox.options[i].value == value)
+        {	
+            selectbox.selectedIndex = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+function setToDate (dateChose, selectPostfix)
+{
+    var y=dateChose.getFullYear() ;
+	var m=dateChose.getMonth()+1 ;
+	var d=dateChose.getDate();
+    
+    selectToValue (document.getElementById ("year" + selectPostfix), y);    
+    selectToValue (document.getElementById ("month" + selectPostfix), m);
+    selectToValue (document.getElementById ("date" + selectPostfix), d);
+}
+
+function setDate() {
+	var theDate=new Date() ;
+    setToDate (theDate, "S");
+   	setToDate (theDate, "E");
+}
+
+function formDateTime(){
+	var theDate=new Date() ;
+	var y=theDate.getFullYear() ;
+	var m=theDate.getMonth()+1 ;
+	if(m<10)
+		m="0"+m;
+	var d=theDate.getDate() ;
+	if(d<10)
+		d="0"+d;
+
+	var report_method=myform.report_method.value;
+	var today=y+"-"+m+"-"+d;
+	var startdate=myform.yearS.value+"-"+myform.monthS.value+"-"+myform.dateS.value;
+    var enddate=myform.yearE.value+"-"+myform.monthE.value+"-"+myform.dateE.value;
+	document.location.href="createReportByDateRange.jsp?startdate="+startdate+"&enddate="+enddate+"&today="+today+"&report_method="+report_method ;
+}
+</script>
+</body>
+</html>
